@@ -5,7 +5,7 @@
 # run by double clicking or from cmd window
 # serves files in current dir and recursively below
 
-print "\nMiniWeb $Revision: 1.6 $ $Date: 2005/06/17 23:56:23 $ \n\n"
+print("\nMiniWeb $Revision: 1.6 $ $Date: 2005/06/17 23:56:23 $ \n\n")
 
 release_log = """\
 
@@ -20,15 +20,15 @@ Revision 1.4  2004/06/21 04:40:22  Administrator
 Comments added. akb.
 """
 
-import BaseHTTPServer, SimpleHTTPServer, socket, sys
+import http.server, http.server, socket, sys
 
 hostname = socket.gethostname()
 my_addr = socket.gethostbyname(hostname)
 
-print hostname, my_addr
+print(hostname, my_addr)
 
-HandlerClass = SimpleHTTPServer.SimpleHTTPRequestHandler
-ServerClass = BaseHTTPServer.HTTPServer
+HandlerClass = http.server.SimpleHTTPRequestHandler
+ServerClass = http.server.HTTPServer
 
 protocol="HTTP/1.0"
 port = 80
@@ -38,8 +38,8 @@ HandlerClass.protocol_version = protocol
 httpd = ServerClass(server_address, HandlerClass)
 
 sa = httpd.socket.getsockname()
-print "Serving HTTP on", "port", sa[1], "..."
-print "Close this window to terminate..."
+print("Serving HTTP on", "port", sa[1], "...")
+print("Close this window to terminate...")
 httpd.serve_forever()
 
 #eof
