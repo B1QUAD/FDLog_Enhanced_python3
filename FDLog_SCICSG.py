@@ -16,10 +16,10 @@ W, EW, E, NONE, NSEW, NS, StringVar, Radiobutton, Tk, Menu, Menubutton, Text, Sc
 
 # all history removed to readme.md
 
-prog = 'FDLog_SCICSG v2019_Field_Day \r\n' \
-       'Orginal Copyright 2017 by South Central Indiana Communications Support Group \r\n' \
-       'FDLog_SCICSG is under the GNU Public License v2 without warranty. \r\n' \
-       'The original license file is in the folder. \r\n'
+prog = 'FDLog_SCICSG v2019_Field_Day \n' \
+       'Orginal Copyright 2017 by South Central Indiana Communications Support Group \n' \
+       'FDLog_SCICSG is under the GNU Public License v2 without warranty. \n' \
+       'The original license file is in the folder. \n'
 print(prog)
 
 about = """
@@ -50,6 +50,7 @@ fdbfont = (typeface, fontsize + fontinterval * 2)  # large   fixed width font
 #   prefix as anything ending in digits
 #   bring down a previous suffix with a character such as ' or .
 
+# Gets a hash of the file.
 def fingerprint():
     hash = hashlib.md5()
     with open('FDLog_SCICSG.py', 'rb') as file_to_hash:
@@ -63,6 +64,7 @@ def fingerprint():
 
 fingerprint()
 
+
 def ival(s):
     """return value of leading int"""
     r = 0
@@ -72,6 +74,7 @@ def ival(s):
             r = int(mm.group(1))
     return r
 
+# It looks like this runs as a new thread and handles the time, no bugs found.
 class clock_class:
     level = 9  # my time quality level
     offset = 0  # my time offset from system clock, add to system time, sec
@@ -144,7 +147,7 @@ def initialize():
     k = "" # keyboard input
     z = "" # answer counter
     kfd = 0 # FD indicator to skip questions
-    print("\r\n \r\n")
+    print("\n \n")
     print("For the person in Charge of Logging:")
     print("*** ONLY ONE PERSON CAN DO THIS ***")
     print("Do you need to set up the event? Y or N")    
@@ -293,9 +296,9 @@ def initialize():
                 print("An information table is easy points")
         #Time Master - oh yeah the big question
         z = ""
-        print("\r\n It is recommended that the first computer")
+        print("\n It is recommended that the first computer")
         print("set up should also be the time master.")
-        print("\r\n IS THIS COMPUTER TIME CORRECT??? \r\n")
+        print("\n IS THIS COMPUTER TIME CORRECT??? \n")
         print("Will this computer be the time master?")
         print("Y = yes and N = no")
         while z != "1":
@@ -390,7 +393,7 @@ class qsodb:
         sqdb.log(self)  # to database
         self.lock.acquire()  # and to ascii journal file as well
         fd = open(logdbf, "a")
-        fd.write("\r\nq|%s|%s|%s|%s|%s|%s|%s|%s|%s|" % \
+        fd.write("\nq|%s|%s|%s|%s|%s|%s|%s|%s|%s|" % \
                  (self.src, self.seq,
                   self.date, self.band, self.call, self.rept,
                   self.powr, self.oper, self.logr))
@@ -457,6 +460,7 @@ class qsodb:
                 # print "discarding out of date range",iv.date,iv.src,iv.seq
                 del (d[i])
         for i in list(d.values()):  # re-index by call-band
+            # print('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$' + i.call)
             dummy, dummy, dummy, dummy, call, dummy, dummy = self.qparse(i.call)  # extract call (not /...)
             k = "%s-%s" % (call, i.band)
             # filter out noncontest entries
@@ -702,10 +706,10 @@ class qsodb:
                 now(), call, bandmod, rept, exin(operator), exin(logger), 0
             s.seq = -1
             s.dispatch('user')
-            txtbillb.insert(END, " DELETE Successful %s %s %s\r\n" % (tm, call, bandmod))
+            txtbillb.insert(END, " DELETE Successful %s %s %s\n" % (tm, call, bandmod))
             logw.configure(state=NORMAL)
             logw.delete(0.1,END)
-            logw.insert(END, "\r\n")
+            logw.insert(END, "\n")
             # Redraw the logw text window (on delete) to only show valid calls in the log. 
             # This avoids confusion by only listing items in the log to edit in the future.
             # Scott Hibbs KD4SIR - July 3, 2018
@@ -714,16 +718,16 @@ class qsodb:
                 if i.seq == seq:
                     continue
                 else:
-                    l.append(logw.insert(END, "\r\n"))
+                    l.append(logw.insert(END, "\n"))
                     if nod == node:
                         l.append(logw.insert(END, i.prlogln(i), "b"))    
                     else:
                         l.append(logw.insert(END, i.prlogln(i)))
-                        l.append(logw.insert(END, "\r\n"))
-            logw.insert(END, "\r\n")
+                        l.append(logw.insert(END, "\n"))
+            logw.insert(END, "\n")
             logw.configure(state=DISABLED)
         else:
-            txtbillb.insert(END, " DELETE Ignored [%s,%s] Not Found\r\n" % (nod, seq))
+            txtbillb.insert(END, " DELETE Ignored [%s,%s] Not Found\n" % (nod, seq))
             topper()
 
     def todb(self):
@@ -863,7 +867,7 @@ class qsodb:
                 bm = "%s%s" % (b, m)
                 # be nice to do min since q instead of time of last q --- DONE
                 t2 = tmlq.get(bm, '')  # time since last Q minutes
-                if t2 == '':
+                if len(t2) == 0:
                     tdif = ''
                 else:
                     tdif = int(tmsub(t1, t2) / 60.)
@@ -904,14 +908,24 @@ class qsodb:
             xcall = m.group(5)
             rept = m.group(7)
             stat = 0
-            if m.group(1) > '' or xcall > '': stat = 1
+            # Changed string > '' to len(string) != 0
+            # print('##########################################################################################################')
+            # print(type(m.group(1)))
+            # print('m ' + m.group(1))
+            # print(type(xcall))
+            # print('xcall ' + xcall)
+            # print('##########################################################################################################')
+            #time.sleep(5)
+            # if len(m.group(1)) != 0 or xcall != None: stat = 1
+            if m.group(1) != None or xcall !=None:
+                stat = 1
             ##            print; print "tm [%s] xcall [%s] rept [%s]"%(tm,xcall,rept)
-            if tm > '':
+            if tm != None:
                 stat = 0
                 m = re.match(r'([0-3]([0-9]([.]([0-5]([0-9]([0-5]([0-9])?)?)?)?)?)?)?$', tm)
                 if m:
                     stat = 1  # at least partial time
-            if xcall > '':
+            if xcall != None:
                 stat = 0  # invalid unless something matches
                 m = re.match(r'([a-z]+)$', xcall)
                 if m:
@@ -941,7 +955,8 @@ class qsodb:
                     call = m.group(1)
                     pfx = m.group(2)
                     sfx = m.group(3)
-                if (stat == 4) & (rept > ''):
+                #if (stat == 4) & (rept > ''):
+                if stat == 4 & len(rept) != 0:
                     stat = 0
                     m = re.match(r'[0-9a-zA-Z]+[0-9a-zA-Z ]*$', rept)
                     if m:
@@ -1050,7 +1065,7 @@ class qsodb:
                 #                print "sec",sect,"state",state
                 if state: stcnt[state] += 1
             if not state:
-                #                print "section not recognized in:\r\n  %s"%i.prlogln()
+                #                print "section not recognized in:\n  %s"%i.prlogln()
                 #                print "sec",sect,"state",state
                 e.append(i.prlogln(i))
         h, n = [], []  # make have and need lists
@@ -1061,15 +1076,15 @@ class qsodb:
                 else:
                     h.append("%s" % i)
         n.sort()
-        r.append("Worked All States Report\r\n%s Warning(s) Below\r\nNeed %s States:" % (len(e), len(n)))
+        r.append("Worked All States Report\n%s Warning(s) Below\nNeed %s States:" % (len(e), len(n)))
         for i in n:
             r.append(i)
         h.sort()
-        r.append("\r\nHave %s States:" % len(h))
+        r.append("\nHave %s States:" % len(h))
         for i in h:
             r.append("%s %s" % (i, stcnt[i]))
         if len(e) > 0:
-            r.append("\r\nWarnings - Cannot Discern US Section in Q(s):\r\n")
+            r.append("\nWarnings - Cannot Discern US Section in Q(s):\n")
             for i in e:
                 r.append(i)
         return r
@@ -1234,7 +1249,7 @@ class netsync:
             my_addr = '127.0.0.1'
     finally:
             s.close()
-    print("\r\n IP address is:  %s\r\n" % my_addr)
+    print("\n IP address is:  %s\n" % my_addr)
     bc_addr = re.sub(r'[0-9]+$', '255', my_addr)  # calc bcast addr
     si = node_info()  # node info
 
@@ -1262,14 +1277,14 @@ class netsync:
 
     def ckauth(self, msg):
         """check authentication hash"""
-        h, m = msg.split('\r\n', 1).encode('utf-8')
+        h, m = msg.split('\n', 1).encode('utf-8')
         #        print h; print self.auth(m); print
         return h == self.auth(m)
 
     def sndmsg(self, msg, addr):
         """send message to address list"""
         if authk != "" and node != "":
-            amsg = self.auth(msg) + '\r\n' + msg
+            amsg = self.auth(msg) + '\n' + msg
             addrlst = []
             if addr == 'bcast':
                 addrlst.append(self.bc_addr)
@@ -1290,7 +1305,7 @@ class netsync:
         key = nod + '.' + str(seq)
         if key in qdb.byid:
             i = qdb.byid[key]
-            msg = "q|%s|%s|%s|%s|%s|%s|%s|%s|%s\r\n" % \
+            msg = "q|%s|%s|%s|%s|%s|%s|%s|%s|%s\n" % \
                   (i.src, i.seq, i.date, i.band, i.call, i.rept, i.powr, i.oper, i.logr)
             self.sndmsg(msg, destip)
 
@@ -1299,10 +1314,10 @@ class netsync:
         self.send_qsomsg(nod, seq, self.bc_addr)
 
     def bcast_now(self):
-        msg = "b|%s|%s|%s|%s|%s|%s\r\n" % \
+        msg = "b|%s|%s|%s|%s|%s|%s\n" % \
               (self.hostname, self.my_addr, node, now(), mclock.level, version)
         for i in self.si.node_status_list():
-            msg += "s|%s|%s|%s|%s|%s\r\n" % i  # nod,seq,bnd,msc,age
+            msg += "s|%s|%s|%s|%s|%s\n" % i  # nod,seq,bnd,msc,age
             # if debug: print i
         self.sndmsg(msg, 'bcast')  # broadcast it
 
@@ -1319,7 +1334,7 @@ class netsync:
             if self.fills:
                 p = random.randrange(0, len(r))  # randomly select one
                 c = r[p]
-                msg = "r|%s|%s|%s\r\n" % (self.my_addr, c[1], c[2])  # (addr,src,seq)
+                msg = "r|%s|%s|%s\n" % (self.my_addr, c[1], c[2])  # (addr,src,seq)
                 self.sndmsg(msg, c[0])
                 print("req fill", c)
 
@@ -1341,7 +1356,7 @@ class netsync:
                 print("bad auth from:", addr)
                 self.badauth_rcvd += 1
             else:
-                lines = msg.split('\r\n')  # decode lines
+                lines = msg.split('\n')  # decode lines
                 for line in lines[1:-1]:  # skip auth hash, blank at end
                     #                    if debug: sms.prmsg(line)
                     fields = line.split('|')
@@ -1402,7 +1417,7 @@ class global_data:
 
     def setv(self, name, value, timestamp):
         if node == "":
-            txtbillb.insert(END, "error - no node id\r\n")
+            txtbillb.insert(END, "error - no node id\n")
             return
         if name[:2] == 'p:':  # set oper/logr
             i = self.byname.get(name, self.new(name, '', '', '', 0))
@@ -1433,7 +1448,7 @@ class global_data:
         return self.byname[name].val
 
     def sethelp(self):
-        l = ["   Set Commands\r\n   For the Logging Guru In Charge\r\n   eg: .set <parameter> <value>\r\n"]  # spaced for sort
+        l = ["   Set Commands\n   For the Logging Guru In Charge\n   eg: .set <parameter> <value>\n"]  # spaced for sort
         for i in list(self.byname.keys()):
             if i[:2] != 'p:':  # skip ops in help display
                 l.append("  %-6s  %-43s  '%s'" % (i, self.byname[i].desc, self.byname[i].val))
@@ -1501,9 +1516,9 @@ class syncmsg:
                 bid, dummy, dummy = qdb.cleanlog()  # get a clean log
                 stnseq = stn +"|"+str(seq)
                 if stnseq in bid:
-                    logw.insert(END, "%s\r\n" % self.msgs[0], "b")
+                    logw.insert(END, "%s\n" % self.msgs[0], "b")
                 else:
-                    logw.insert(END, "%s\r\n" % self.msgs[0])
+                    logw.insert(END, "%s\n" % self.msgs[0])
             logw.configure(state=DISABLED)
             del self.msgs[0]
         self.lock.release()
@@ -1928,7 +1943,7 @@ def contestlog(pr):
         print(soapbox)
         print()
         print()
-    print("Logging and Reporting Software Used:\r\n")
+    print("Logging and Reporting Software Used:\n")
     print(prog)
     print("===================== CLIP HERE ============================")
     print()
@@ -2035,13 +2050,13 @@ def bandset(b):
     global band, tmob
     if node == "":
         b = 'off'
-        txtbillb.insert(END, "err - no node\r\n")
+        txtbillb.insert(END, "err - no node\n")
     if operator == "":
         b = 'off'
-        txtbillb.insert(END, "err - no Contestant\r\n")
+        txtbillb.insert(END, "err - no Contestant\n")
     if b != 'off':
         s = net.si.nod_on_band(b)
-        if s: txtbillb.insert(END, " Already on [%s]: %s\r\n" % (b, s))
+        if s: txtbillb.insert(END, " Already on [%s]: %s\n" % (b, s))
     txtbillb.see(END)
     if band != b: tmob = now()  # reset time on band
     band = b
@@ -2058,7 +2073,7 @@ class NewParticipantDialog():
 
     def dialog(self):
         if node == "":
-            txtbillb.insert(END, "err - no node\r\n")
+            txtbillb.insert(END, "err - no node\n")
             return
         s = NewParticipantDialog()
         s.t = Toplevel(root)
@@ -2131,31 +2146,31 @@ class NewParticipantDialog():
         self.age.configure(bg='white')
         self.vist.configure(bg='white')
         if not re.match(r'[a-zA-Z]{2,3}$', initials):
-            txtbillb.insert(END, "error in initials\r\n")
+            txtbillb.insert(END, "error in initials\n")
             txtbillb.see(END)
             topper()
             self.initials.focus()
             self.initials.configure(bg='yellow')
         elif not re.match(r'[A-Za-z ]{4,20}$', name):
-            txtbillb.insert(END, "error in name\r\n")
+            txtbillb.insert(END, "error in name\n")
             txtbillb.see(END)
             topper()
             self.name.focus()
             self.name.configure(bg='yellow')
         elif not re.match(r'([a-zA-Z0-9]{3,6})?$', call):
-            txtbillb.insert(END, "error in call\r\n")
+            txtbillb.insert(END, "error in call\n")
             txtbillb.see(END)
             topper()
             self.call.focus()
             self.call.configure(bg='yellow')
         elif not re.match(r'([0-9]{1,2})?$', age):
-            txtbillb.insert(END, "error in age\r\n")
+            txtbillb.insert(END, "error in age\n")
             txtbillb.see(END)
             topper()
             self.age.focus()
             self.age.configure(bg='yellow')
         elif not re.match(r'([a-zA-Z0-9]{4,20})?$', vist):
-            txtbillb.insert(END, "error in title\r\n")
+            txtbillb.insert(END, "error in title\n")
             txtbillb.see(END)
             topper()
             self.vist.focus()
@@ -2287,7 +2302,7 @@ def viewtextl(l, ttl=''):
     "view text list"
     w = viewprep(ttl)
     for i in l:
-        w.insert(END, "%s\r\n" % i)
+        w.insert(END, "%s\n" % i)
     w.configure(state=DISABLED)
 
 def viewtextf(fn, ttl=''):
@@ -2326,12 +2341,12 @@ def updatebb():
     def whosonfirst(event):
         # Cleaned up whos on band (with section of .ba report) - KD4SIR Scott Hibbs Mar/23/2017 
         d = {}
-        txtbillb.insert(END,"\r\n--node-- band opr lgr pwr  ----- last\r\n")
+        txtbillb.insert(END,"\n--node-- band opr lgr pwr  ----- last\n")
         for t in list(net.si.nodinfo.values()):
             dummy, dummy, age = d.get(t.nod, ('', '', 9999))
             if age > t.age: d[t.nod] = (t.bnd, t.msc, t.age)
         for t in d:
-            txtbillb.insert(END,"%8s %4s %-18s %4s\r\n" % (t, d[t][0], d[t][1], d[t][2]))  # t.bnd,t.msc,t.age)
+            txtbillb.insert(END,"%8s %4s %-18s %4s\n" % (t, d[t][0], d[t][1], d[t][2]))  # t.bnd,t.msc,t.age)
         topper()
         txtbillb.see(END)
 
@@ -2692,7 +2707,7 @@ for g in range(0, 2400, 100):
     if (e < 0): e += 2400
     x = e + 100
     if (x < 0): x += 2400
-    tzchart += "%04d %04d %04d %04d %04d\r\n" % (g, p, c, e, x)
+    tzchart += "%04d %04d %04d %04d %04d\n" % (g, p, c, e, x)
 resourcemenu.add_command(label="Time Conversion Chart", command=lambda: viewtextv(tzchart, "Time Conversion Chart"))
 helpmenu = Menu(menu, tearoff=0)
 menu.add_cascade(label="Help", menu=helpmenu)
@@ -2722,7 +2737,7 @@ def testcmd(name, rex, value):
     m = re.match(s, kbuf)
     if m:
         value = m.group(1)
-        txtbillb.insert(END, "\r\n%s set to %s\r\n" % (name, value))
+        txtbillb.insert(END, "\n%s set to %s\n" % (name, value))
         kbuf = ""
     return value, default != value
 
@@ -2941,10 +2956,10 @@ txtbillb.grid(row=3, column=0, sticky=NSEW)
 scrollt.grid(row=3, column=1, sticky=NS)
 root.grid_rowconfigure(3, weight=1)
 logw.tag_config("b", foreground="blue")
-logw.insert(END, "          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n", ("b"))
-logw.insert(END, "                            DATABASE DISPLAY WINDOW\r\n", ("b"))
-logw.insert(END, "          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n", ("b"))
-logw.insert(END, "%s\r\n" % prog, ("b"))
+logw.insert(END, "          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", ("b"))
+logw.insert(END, "                            DATABASE DISPLAY WINDOW\n", ("b"))
+logw.insert(END, "          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", ("b"))
+logw.insert(END, "%s\n" % prog, ("b"))
 #     Add a bottom window for station information
 # f1c = Frame(root, bd=1)
 # f1c.grid(row=4,columnspan=4,sticky=NSEW)
@@ -2955,8 +2970,8 @@ logw.insert(END, "%s\r\n" % prog, ("b"))
 # wrap=NONE,setgrid=1)
 # txtentry.grid(row=4,column=4,sticky=NSEW)
 # root.grid_rowconfigure(4,weight=1)
-# txtentry.insert(END,"Call-Class-Sect- \r\n")
-# fth2lbl = Label(f1c,text="-\r\n<",font=fdfont,background='grey')
+# txtentry.insert(END,"Call-Class-Sect- \n")
+# fth2lbl = Label(f1c,text="-\n<",font=fdfont,background='grey')
 # fth2lbl.grid(row=4,column=3,sticky=NSEW)
 # Phonetics box
 # fthw2 = Text(f1c,takefocus=0,height=2,width=40,font=fdmfont,\
@@ -2965,7 +2980,7 @@ logw.insert(END, "%s\r\n" % prog, ("b"))
 # fthw2.grid(row=4,column=2,sticky=NSEW)
 # root.grid_rowconfigure(4,weight=1)
 # fthw2.insert(END,"phonetics box")
-# txtentry.insert(END,"\r\n")
+# txtentry.insert(END,"\n")
 # startup
 contestlog(0)  # define globals
 buildmenus()
@@ -2991,18 +3006,18 @@ root.update()
 root.deiconify()
 net.start()  # start threads
 renew_title()
-txtbillb.insert(END, "          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n", ("b"))
-txtbillb.insert(END, "                              Dialogue Window\r\n", ("b"))
-txtbillb.insert(END, "          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\r\n", ("b"))
-txtbillb.insert(END, "Please select the Contestant, Logger, Power and Band/Mode in red above.\r\n\r\n")
-txtbillb.insert(END, "-Call-Class-Sect- \r\n")
+txtbillb.insert(END, "          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n", ("b"))
+txtbillb.insert(END, "                              Dialogue Window\n", ("b"))
+txtbillb.insert(END, "          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n", ("b"))
+txtbillb.insert(END, "Please select the Contestant, Logger, Power and Band/Mode in red above.\n\n")
+txtbillb.insert(END, "-Call-Class-Sect- \n")
 txtbillb.config(insertwidth=3)
 txtbillb.focus_set()
 
 def topper():
     """This will reset the display for input. Added Jul/01/2016 KD4SIR Scott Hibbs"""
-    txtbillb.insert(END, "\r\n")
-    txtbillb.insert(END, "-Call-Class-Sect- \r\n")
+    txtbillb.insert(END, "\n")
+    txtbillb.insert(END, "-Call-Class-Sect- \n")
 
 def showthiscall(call):
     "show the log entries for this call"
@@ -3015,8 +3030,8 @@ def showthiscall(call):
         #        print i.call
         q = i.call.split('/')
         if p[0] == q[0]:
-            if findany == 0: txtbillb.insert(END, "\r\n")
-            txtbillb.insert(END, "%s\r\n" % i.prlogln(i))
+            if findany == 0: txtbillb.insert(END, "\n")
+            txtbillb.insert(END, "%s\n" % i.prlogln(i))
             findany = 1
     return findany
 
@@ -3056,15 +3071,15 @@ def proc_key(ch):
     # Adding a statement to check for uppercase. Previously unresponsive while capped locked. - Scott Hibbs Jul/01/2016
     # Thanks to WW9A Brian Smith for pointing out that the program isn't randomly frozen and not requiring a restart.
     if ch.isupper():
-        txtbillb.insert(END, " LOWERCAPS PLEASE \r\n")
+        txtbillb.insert(END, " LOWERCAPS PLEASE \n")
         kbuf = ""
         topper()
         return
-    if ch == '\r':  # return, may be cmd or log entry
+    if ch == '':  # return, may be cmd or log entry
         if kbuf[:1] == '#':
             qdb.qst(kbuf[1:])
             kbuf = ""
-            txtbillb.insert(END, '\r\n')
+            txtbillb.insert(END, '\n')
             return
         # check for valid commands
         if re.match(r'[.]h$', kbuf):  # help request
@@ -3081,7 +3096,7 @@ def proc_key(ch):
                 .pr                generate entry and log files"""
             viewtextv(m, 'Command Help')
             kbuf = ""
-            txtbillb.insert(END, '\r\n')
+            txtbillb.insert(END, '\n')
             return
         # This section was reworked and added from 152i
         pwr, s = testcmd(".pow", r"[0-9]{1,4}n?", power)
@@ -3106,9 +3121,9 @@ def proc_key(ch):
             name, val = m.group(1, 2)
             r = gd.setv(name, val, now())
             if r:
-                txtbillb.insert(END, "\r\n%s\r\n" % r)
+                txtbillb.insert(END, "\n%s\n" % r)
             else:
-                txtbillb.insert(END, "\r\n")
+                txtbillb.insert(END, "\n")
                 qdb.globalshare(name, val)  # global to db
             kbuf = ""
             renew_title()
@@ -3118,23 +3133,23 @@ def proc_key(ch):
             print()
             nb = m.group(1)
             kbuf = ""
-            txtbillb.insert(END, "\r\n")
+            txtbillb.insert(END, "\n")
             bandset(nb)
             return
         if re.match(r'[.]off$', kbuf):
             bandoff()
             kbuf = ""
-            txtbillb.insert(END, "\r\n")
+            txtbillb.insert(END, "\n")
             return
         if re.match(r'[.]ba$', kbuf):
             qdb.bands()
             kbuf = ""
-            txtbillb.insert(END, "\r\n")
+            txtbillb.insert(END, "\n")
             return
         if re.match(r'[.]pr$', kbuf):
             contestlog(1)
-            txtbillb.insert(END, " Entry/Log File Written\r\n")
-            txtbillb.insert(END, "\r\n")
+            txtbillb.insert(END, " Entry/Log File Written\n")
+            txtbillb.insert(END, "\n")
             kbuf = ""
             return
         p = r'[.]edit ([a-z0-9]{1,6})'
@@ -3143,12 +3158,12 @@ def proc_key(ch):
             call = m.group(1)
             #  qdb.delete(nod,seq,reason)
             kbuf = ""
-            txtbillb.insert(END, "To edit: click on the log entry\r\n")
+            txtbillb.insert(END, "To edit: click on the log entry\n")
             return
         #Found that .node needed fixing. Reworked - Scott Hibbs Mar/28/2017
         if re.match(r'[.]node', kbuf):
             if band != 'off':
-                txtbillb.insert(END, "\r\nSet band off before changing node id\r\n")
+                txtbillb.insert(END, "\nSet band off before changing node id\n")
                 kbuf = ""
                 return
             else:
@@ -3157,7 +3172,7 @@ def proc_key(ch):
                     node = nde
                     setnode(node)
             kbuf = ""
-            txtbillb.insert(END, "\r\n")
+            txtbillb.insert(END, "\n")
             topper()                
             return
         if re.match(r'[.]st$', kbuf):  # status  xx mv to gui
@@ -3177,7 +3192,7 @@ def proc_key(ch):
                 print("Net       disabled")
             print()
             kbuf = ""
-            txtbillb.insert(END, "\r\n")
+            txtbillb.insert(END, "\n")
             return
         if re.match(r'[.]re$', kbuf):  # report  xx mv to gui
             print()
@@ -3193,35 +3208,35 @@ def proc_key(ch):
             print("%s total Qs, %s QSO points," % (tq, score), end=' ')
             print(maxp, "watts maximum power")
             kbuf = ""
-            txtbillb.insert(END, "\r\n")
+            txtbillb.insert(END, "\n")
             topper()
             return
         if kbuf and kbuf[0] == '.':  # detect invalid command
-            txtbillb.insert(END, " Invalid Command\r\n")
+            txtbillb.insert(END, " Invalid Command\n")
             kbuf = ""
-            txtbillb.insert(END, "\r\n")
+            txtbillb.insert(END, "\n")
             topper()
             return
         # check for valid contact
-        if (ch == '\r'):
+        if (ch == ''):
             stat, ftm, dummy, sfx, call, xcall, rept = qdb.qparse(kbuf)
             goBack = "%s %s" % (call, rept)# for the up arrow enhancement - Scott Hibbs KD4SIR Jul/5/2018
             if stat == 5:  # whole qso parsed
                 kbuf = ""
                 if len(node) < 3:
-                    txtbillb.insert(END, " ERROR, set .node <call> before logging\r\n")
+                    txtbillb.insert(END, " ERROR, set .node <call> before logging\n")
                     topper()
                 elif qdb.dupck(xcall, band):  # dup check
-                    txtbillb.insert(END, "\r\n\r\n DUPE on band %s\r\n" % band)
+                    txtbillb.insert(END, "\n\n DUPE on band %s\n" % band)
                     topper()
                 elif qdb.partck(xcall): # Participant check
-                    txtbillb.insert(END, "\r\n Participant - not allowed \r\n")
+                    txtbillb.insert(END, "\n Participant - not allowed \n")
                     topper()
                 elif xcall == (gd.getv('fdcall')).lower():
-                    txtbillb.insert(END, "\r\n That's us - not allowed \r\n")
+                    txtbillb.insert(END, "\n That's us - not allowed \n")
                     topper()
                 elif xcall == (gd.getv('gcall')).lower():
-                    txtbillb.insert(END, "\r\n That's us - not allowed \r\n")
+                    txtbillb.insert(END, "\n That's us - not allowed \n")
                     topper()
                 else:
                     # Added database protection against no band, no power,
@@ -3237,8 +3252,8 @@ def proc_key(ch):
                         #print "%s has a license" % logger
                         legal = legal + 1
                     if legal == 0:
-                        txtbillb.insert(END, "\r\n\r\n  The Contestant or the logger needs a license.\r\n")
-                        txtbillb.insert(END, "  Please Try Again\r\n")
+                        txtbillb.insert(END, "\n\n  The Contestant or the logger needs a license.\n")
+                        txtbillb.insert(END, "  Please Try Again\n")
                         topper()
                         return
                     # checking for band, power, contestant or logger
@@ -3249,7 +3264,7 @@ def proc_key(ch):
                     if len(logger) < 2: em += " Logger "
                     if em != '':
                         txtbillb.insert(END, " - WARNING: ( %s ) NOT SET" % em)
-                        txtbillb.insert(END, "  Please Try Again\r\n")
+                        txtbillb.insert(END, "  Please Try Again\n")
                         topper()
                         return
                     if em == '':
@@ -3258,7 +3273,7 @@ def proc_key(ch):
                         rept1 = str.upper(rept)
                         if clas == '1D':
                             if clas in rept1:
-                                txtbillb.insert(END, "\r\n 1D to 1D contacts are logged, but zero points! \r\n")
+                                txtbillb.insert(END, "\n 1D to 1D contacts are logged, but zero points! \n")
                                 topper()
                         # kc7sda - check the report for valid fd or wfd classes:
                         # note according to the cheat sheet, \d is a digit
@@ -3275,7 +3290,7 @@ def proc_key(ch):
                             # allow everything
                             m = "something"
                         if m == None: # match failed, do not allow and abort logging
-                            txtbillb.insert(END, " - ERROR: Bad exchange ( %s ) Please Try Again\r\n" % rept)
+                            txtbillb.insert(END, " - ERROR: Bad exchange ( %s ) Please Try Again\n" % rept)
                             topper()
                             return
                         # Check for valid section in report added by Scott Hibbs Feb/6/2017
@@ -3286,30 +3301,30 @@ def proc_key(ch):
                         if rept2 in secName:
                             pass
                         else:
-                            print("\r\n Use one of these for the section:")
+                            print("\n Use one of these for the section:")
                             kk = ""
                             nx = 0
                             ny = 0
                             for k in sorted(secName):
                                 if ny == 0:
-                                    kk += "\r\n  "
+                                    kk += "\n  "
                                     ny = ny + 1
                                 kk += str(k) + ", "
                                 nx = nx + 1
                                 if nx == 17:  # how many sections to the line
                                     ny = ny + 1
                                     if ny < 6:  # last line gets the rest
-                                        kk += "\r\n  "
+                                        kk += "\n  "
                                         nx = 0
                             print(kk)
-                            #print('\r\n'.join("{} : {}".format(k, v) for k, v in secName.items()))
+                            #print('\n'.join("{} : {}".format(k, v) for k, v in secName.items()))
                             txtbillb.insert(END, kk)
-                            txtbillb.insert(END, "\r\n  Please try one of the sections above.")
+                            txtbillb.insert(END, "\n  Please try one of the sections above.")
                             topper()
                             return
                         # The entry is good and ready to log
                         txtbillb.insert(END, " - QSL!  May I have another?")
-                        txtbillb.insert(END, "\r\n")
+                        txtbillb.insert(END, "\n")
                         topper()
                         tm = now()
                         if ftm:  # force timestamp
@@ -3319,14 +3334,14 @@ def proc_key(ch):
                 kbuf = ""
                 # Added participant check here too - Feb/12/2017 -Scott Hibbs 
                 if qdb.partck(xcall): # Participant check
-                    txtbillb.insert(END, "\r\n Participant - not allowed \r\n")
+                    txtbillb.insert(END, "\n Participant - not allowed \n")
                     topper()
                 elif showthiscall(call) == 0:
-                    txtbillb.insert(END, " none found\r\n")
+                    txtbillb.insert(END, " none found\n")
                     topper()
             return
     if ch == '\x1b':  # escape quits this input line
-        txtbillb.insert(END, " ESC -aborted line-\r\n")
+        txtbillb.insert(END, " ESC -aborted line-\n")
         topper()
         kbuf = ""
         return
@@ -3352,7 +3367,7 @@ def proc_key(ch):
             kbuf = ""
             r = qdb.sfx2call(suffix, band)
             if not r: r = 'None'
-            txtbillb.insert(END, ": %s on band '%s'\r\n" % (r, band))
+            txtbillb.insert(END, ": %s on band '%s'\n" % (r, band))
             return
         if stat == 3:  # prefix, combine w suffix
             stat, tm, dummy, sfx, call, xcall, rept = qdb.qparse(kbuf + suffix)
@@ -3361,12 +3376,12 @@ def proc_key(ch):
                 txtbillb.insert(END, sfx)  # fall into call dup ck
         if stat == 4:  # whole call, dup chk
             if qdb.dupck(xcall, band):
-                txtbillb.insert(END, "\r\n\r\n DUPE on band %s" % band)
+                txtbillb.insert(END, "\n\n DUPE on band %s" % band)
                 showthiscall(call)
                 kbuf = ""
                 topper()
             elif qdb.partck(xcall): # Participant check
-                txtbillb.insert(END, "\r\n Participant - not allowed \r\n")
+                txtbillb.insert(END, "\n Participant - not allowed \n")
                 showthiscall(call)
                 kbuf = ""
                 topper()
@@ -3406,7 +3421,7 @@ def kevent(event):
     elif k == 65307:  # ESC
         proc_key('\x1b')
     elif k == 65293:  # return
-        proc_key('\r')
+        proc_key('')
     txtbillb.see(END)  # insure that it stays in view
     return "break"  # prevent further processing on kbd events
 
@@ -3591,7 +3606,7 @@ class Edit_Dialog(Toplevel):
                 qdb.delete(self.node, self.seq, reason)
                 qdb.postnew(newdate, newcall, newband, newrept, newopr, newlogr, newpowr)
                 self.top.destroy()
-                txtbillb.insert(END, " EDIT Successful\r\n")
+                txtbillb.insert(END, " EDIT Successful\n")
                 topper()
             if changer == 2:
                 #band or call changed so check for dupe before submitting to log.
@@ -3609,7 +3624,7 @@ class Edit_Dialog(Toplevel):
                     qdb.postnew(newdate, newcall, newband, newrept, newopr, newlogr, newpowr)
                     self.top.destroy()
                     editedornot = "1"
-                    txtbillb.insert(END, " EDIT Successful\r\n")
+                    txtbillb.insert(END, " EDIT Successful\n")
                     topper()
 
     def dele(self):
@@ -3702,14 +3717,14 @@ logw.bind('<KeyPress>', kevent)  # use del key for?xx
 logw.bind('<Button-1>', log_select)  # start of log edit
 root.after(1000, update)  # 1 hz activity
 root.mainloop()  # gui up
-print("\r\nShutting down")
+print("\nShutting down")
 # the end was updated from 152i
 band = 'off'  # gui down, xmt band off, preparing to quit
 net.bcast_now()  # push band out
 time.sleep(0.2)
 saveglob()  # save globals
 print("  globals saved")
-print("\r\n\r\nFDLog is shut down, you should close this console window now")
+print("\n\nFDLog is shut down, you should close this console window now")
 time.sleep(0.5)
 # os._exit(1)  # kill the process somehow?
 exit(1)
