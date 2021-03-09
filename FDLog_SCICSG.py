@@ -30,6 +30,7 @@ Copyright 2018 South Central Indiana Communications Support Group
 Visit us at www.scicsg.org
 Your donations are appreciated to support Amateur Radio.
 
+2021 - Modified by B1QUAD for python 3 compatibility, still in development.
 """
 
 version = "v19"
